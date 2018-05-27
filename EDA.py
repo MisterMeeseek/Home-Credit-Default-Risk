@@ -4,6 +4,17 @@ import seaborn as sns
 
 application_train = pd.read_csv('application_train.csv')
 
+# Create null values where 'XNA' and 'XAP' are used, function that takes a series as an argument
+''' START UP AGAIN HERE, MOVING FORWARD AND EXAMINING EACH VARIABLE AND USING THE FUNCTION MADE HERE AS NEEDED.'''
+
+# Type of loan
+sns.countplot('NAME_CONTRACT_TYPE', data = application_train)
+sns.barplot(x = 'NAME_CONTRACT_TYPE', y = 'TARGET', hue = 'CODE_GENDER', data = application_train)
+
+# Gender
+
+sns.countplot(x = 'CODE_GENDER', data = application_train)
+
 sns.countplot(x = 'AMT_INCOME_TOTAL', data = application_train)
 application_train['AMT_INCOME_TOTAL'].describe().astype(int)
 
@@ -47,4 +58,6 @@ def grouped_credit(x):
 application_train['G_CREDIT'] = application_train['AMT_CREDIT'].apply(grouped_credit)
 sns.countplot(x = 'G_CREDIT', data = application_train, orient = 'v')
 sns.distplot(application_train['AMT_CREDIT'])
+
+sns.distplot(application_train['AMT_INCOME_TOTAL'].loc[application_train['AMT_INCOME_TOTAL'] > 5000000])
 
