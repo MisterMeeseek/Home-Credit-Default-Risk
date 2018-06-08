@@ -16,19 +16,17 @@ def replace_with_null(x):
     else:
         return x
     
-'''# Detect outliers with Tukey method  <<<< this is either fucking up or isn't the best approach to dealing with outliers in this dataset. Failed to detect any outliers in the income data even though a number of them exist
-def detect_outliers(df, n, features):
+# Outlier detection function (Tukey method) to be used on individual series as needed
+        # this function will return the indices of the observations containing outlying values
+''' def detect_outliers(df, n, cols):  # replicate this from YG's solution
     outlier_indices = []
-    for col in features:
-        Q1 = np.nanpercentile(df[col], 25)
-        Q3 = np.nanpercentile(df[col], 75)
-        IQR = Q3 - Q1
-        outlier_step = 1.5 * IQR
-        outlier_list_col = df[(df[col] < Q1 - outlier_step) | (df[col] > Q3 + outlier_step)].index
-        outlier_indices.extend(outlier_list_col)
-        outlier_indices = Counter(outlier_indices)
-        multiple_outliers = list(k for k, v in outlier_indices.items() if v > n)
-        return multiple_outliers'''
+    Q1 = np.nanpercentile(col, 25)
+    Q3 = np.nanpercentile(col, 75)
+    IQR = Q3 - Q1
+    outlier_step = 1.5 * IQR
+    outlier_list = application_train.loc[(col[i] < Q1 - outlier_step) | (col[i] > Q3 + outlier_step)].index
+    outlier_indices.extend(outlier_list)
+    return outlier_indices '''
 
 # Target variable distribution check
 sns.countplot('TARGET', data = application_train)
@@ -70,7 +68,8 @@ application_train['AMT_INCOME_TOTAL'].describe().astype(int)
 highest_incomes = application_train['AMT_INCOME_TOTAL'].loc[(application_train['AMT_INCOME_TOTAL'] >= 202500) & (application_train['AMT_INCOME_TOTAL'] <= 1000000)]
 
     # detecting outliers in the applicants' income data
-income_outliers = detect_outliers(application_train, 1, ['AMT_INCOME_TOTAL'])
+application_train['AMT_INCOME_TOTAL']
+income_outliers = detect_outliers(application_train, 'AMT_INCOME_TOTAL')
 len(application_train['AMT_INCOME_TOTAL'])
 
     # getting better view of distribution of incomes
@@ -110,14 +109,13 @@ def grouped_incomes(x):
     
 application_train['G_INCOMES'] = application_train['AMT_INCOME_TOTAL'].apply(grouped_incomes)
 
-grouped_incomes_cntplt = sns.countplot(x = application_train['G_INCOMES'])
-plt.setp(grouped_incomes_cntplt.get_xticklabels(), rotation = 45)
+grouped_incomes_cntplt = sns.countplot(x = application_train['G_INCOMES'], order = incomes_order, hue = application_train['CODE_GENDER'])
+plt.xticks(rotation = 45)
 
 incomes_grouped = application_train['G_INCOMES'].value_counts()
-application_train['G_INCOMES'].describe()
-sns.distplot(application_train['G_INCOMES'])
-sns.barplot(x = incomes_grouped, y = 'TARGET', data = application_train)
-application_train['G_INCOMES']
+incomes_order = ['$0 - $50k', '$100k - $149k', '$150k - $199k', '$200k - $249k', '$250k - $299k', '$300k - $349k', '$350k - $399k', '$400k - $449k', '$450k - $499k', '$500k+']
+for i in incomes_grouped:
+    print((i / incomes_grouped.sum()) * 100)
 
 # Total Amount of Credit
 def grouped_credit(x):
@@ -135,6 +133,3 @@ def grouped_credit(x):
 application_train['G_CREDIT'] = application_train['AMT_CREDIT'].apply(grouped_credit)
 sns.countplot(x = 'G_CREDIT', data = application_train, orient = 'v')
 sns.distplot(application_train['AMT_CREDIT'])
-
-sns.distplot(application_train['AMT_INCOME_TOTAL'].loc[application_train['AMT_INCOME_TOTAL'] > 5000000])
-
